@@ -23,9 +23,9 @@
 # load and balance it once; after balancing exit and do not change
 # it again.
 <% if $oneshot { -%>
-IRQBALANCE_ONESHOT=yes
+IRQBALANCE_ONESHOT="yes"
 <% } else { -%>
-#IRQBALANCE_ONESHOT=
+#IRQBALANCE_ONESHOT="no"
 <% } -%>
 
 #
@@ -35,10 +35,10 @@ IRQBALANCE_ONESHOT=yes
 # corresponding bits set to one in this mask will not have any
 # irq's assigned to them on rebalance
 #
-<% if $ban_cpu { -%>
+<% if $ban_cpu != [] { -%>
 IRQBALANCE_BANNED_CPUS="<%= $ban_cpu.join(',') %>"
 <% } else { -%>
-#IRQBALANCE_BANNED_CPUS=
+#IRQBALANCE_BANNED_CPUS=""
 <% } -%>
 
 #
@@ -46,32 +46,29 @@ IRQBALANCE_BANNED_CPUS="<%= $ban_cpu.join(',') %>"
 # append any args here to the irqbalance daemon as documented in the man page
 #
 HINTPOLICY='--hintpolicy=<%= $hintpolicy %>'
-
 <% if $powerthresh { -%>
 POWERTHRESH='--powerthresh=<%= $powerthresh %>'
 <% } else { -%>
 POWERTHRESH=''
 <% } -%>
-
-<% if $ban_irq { -%>
+<% if $ban_irq != [] { -%>
 BANIRQ='<% $ban_irq.each |$ban_it| { -%>
 <%    "--banirq=${ban_it} " -%>
 <%   } -%>
+'
 <% } else { -%>
 BANIRQ=''
 <% } -%>
-
 <% if $deepestcache { -%>
 DEEPESTCACHE='--deepestcache=<%= $deepestcache %>'
 <% } else { -%>
 DEEPESTCACHE=''
 <% } -%>
-
 <% if $policyscript { -%>
 POLICYSCRIPT='--policyscript=<%= $policyscript %>'
 <% } else { -%>
 POLICYSCRIPT=''
 <% } -%>
-
 EXTRA_ARGS='<%= $extra_args %>'
+
 IRQBALANCE_ARGS="${HINTPOLICY} ${POWERTHRESH} ${BANIRQ} ${DEEPESTCACH} ${POLICYSCRIPT} ${EXTRA_ARGS}"

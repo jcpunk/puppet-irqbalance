@@ -39,7 +39,11 @@ describe 'irqbalance' do
         with_group('root').
         with_mode('0644').
         that_notifies('Service[irqbalance.service]').
-        that_notifies('Class[systemd::systemctl::daemon_reload]')
+        that_notifies('Class[systemd::systemctl::daemon_reload]').
+        with_content(/\[Service\]/).
+        with_content(/Type=simple/).
+        with_content(/EnvironmentFile=\/etc\/sysconfig\/irqbalance/).
+        with_content(/ExecStart=\/usr\/sbin\/irqbalance --foreground \$IRQBALANCE_ARGS/)
     }
 
     it {
@@ -48,7 +52,9 @@ describe 'irqbalance' do
         with_owner('root').
         with_group('root').
         with_mode('0644').
-        that_notifies('Service[irqbalance.service]')
+        that_notifies('Service[irqbalance.service]').
+        with_content(/#IRQBALANCE_ONESHOT="no"/).
+        with_content(/#IRQBALANCE_BANNED_CPUS=""/)
     }
 
   end
