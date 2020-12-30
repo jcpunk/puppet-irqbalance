@@ -9,11 +9,13 @@ class irqbalance (
   Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
   Optional[Integer] $powerthresh = undef,
   Optional[Array[Integer]] $ban_irq = [],
-  Optional[Array[Regexp[^[0-9a-fA-F]+$]]] $ban_cpu = [],  #this is a special format for hex, no leading 0x
+  Optional[Array[Regexp[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
   Optional[Integer[0,3]] $deepestcache = undef,
   Optional[Stdlib::Absolutepath] $policyscript = undef,
   Optional[String] $extra_args = undef,
 ) {
+
+  include systemd::systemctl::daemon_reload
 
   if $package_manage {
     package { $package_name:
@@ -23,36 +25,38 @@ class irqbalance (
     }
   }
 
-  file {"/usr/lib/systemd/system/${service_name}":
-    ensure => 'file',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0644',
-  }
+  if $service_ensure == 'running' or $service_enable {
+    file {"/usr/lib/systemd/system/${service_name}":
+      ensure => 'file',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0644',
+    }
 
-  file {"/usr/lib/systemd/system/${service_name}.d":
-    ensure => 'directory',
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0755',
-  }
+    file {"/usr/lib/systemd/system/${service_name}.d":
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755',
+    }
 
-  file {"/usr/lib/systemd/system/${service_name}.d/puppet.conf":
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => ,
-    notify  => Service[$service_name],
-  }
+    file {"/usr/lib/systemd/system/${service_name}.d/puppet.conf":
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => epp('irqbalance/usr/lib/systemd/system/irqbalance.service.d/puppet.conf.epp'),
+      notify  => [ Class['systemd::systemctl::daemon_reload'], Service[$service_name] ],
+    }
 
-  file {'/etc/sysconfig/irqbalance':
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => ,
-    notify  => Service[$service_name],
+    file {'/etc/sysconfig/irqbalance':
+      ensure  => 'file',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      content => epp('irqbalance/etc/sysconfig/irqbalance.epp'),
+      notify  => Service[$service_name],
+    }
   }
 
   service { $service_name:
@@ -60,3 +64,4 @@ class irqbalance (
     enable => $service_enable,
   }
 }
+

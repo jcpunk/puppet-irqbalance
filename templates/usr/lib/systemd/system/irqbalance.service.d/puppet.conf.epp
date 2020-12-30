@@ -1,0 +1,9 @@
+[Service]
+<% @oneshot -%>
+Type=oneshot
+RemainAfterExit=yes
+<% else -%>
+Type=simple
+<% end -%>
+EnvironmentFile=/etc/sysconfig/irqbalance
+ExecStart=/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS
