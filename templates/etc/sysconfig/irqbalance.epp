@@ -7,11 +7,12 @@
 # EnvironmentFile key in the service unit file (or via whatever method the init
 # system you're using has.
 #
-# ONESHOT=yes
-# after starting, wait for a minute, then look at the interrupt
+# type=oneshot
+#
+# after starting, it will wait for a minute, then look at the interrupt
 # load and balance it once; after balancing exit and do not change
 # it again.
-<% if @oneshot -%>
+<% if $oneshot -%>
 IRQBALANCE_ONESHOT=yes
 <% else -%>
 #IRQBALANCE_ONESHOT=
@@ -24,8 +25,8 @@ IRQBALANCE_ONESHOT=yes
 # corresponding bits set to one in this mask will not have any
 # irq's assigned to them on rebalance
 #
-<% if @ban_cpu -%>
-IRQBALANCE_BANNED_CPUS="<%= @ban_cpu.join(',') %>"
+<% if $ban_cpu -%>
+IRQBALANCE_BANNED_CPUS="<%= $ban_cpu.join(',') %>"
 <% else -%>
 #IRQBALANCE_BANNED_CPUS=
 <% end -%>
@@ -34,9 +35,23 @@ IRQBALANCE_BANNED_CPUS="<%= @ban_cpu.join(',') %>"
 # IRQBALANCE_ARGS
 # append any args here to the irqbalance daemon as documented in the man page
 #
-<% if @extra_args -%>
-IRQBALANCE_ARGS="<%= @extra_args %>"
-<% else -%>
-#IRQBALANCE_ARGS=
+<% $final_args = [] -%>
+<% $final_args << "--hintpolicy=${hintpolicy}" -%>
+<% if $powerthresh -%>
+<%   $final_args << "--powerthresh=${powerthresh}" -%>
 <% end -%>
-
+<% if $ban_irq -%>
+<%   $ban_irq.each do |$ban_it| -%>
+<%     $final_args << "--banirq=${ban_it}" -%>
+<%   end -%>
+<% end -%>
+<% if $deepestcache -%>
+<%   $final_args << "--deepestcache=${deepestcache}" -%>
+<% end -%>
+<% if $policyscript -%>
+<%   $final_args << "--policyscript=${policyscript}" -%>
+<% end -%>
+<% if $extra_args -%>
+<%   $final_args << $extra_args -%>
+<% end -%>
+IRQBALANCE_ARGS="<%= $final_args.join(' ') %>"
