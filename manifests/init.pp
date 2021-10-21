@@ -45,7 +45,7 @@ class irqbalance (
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => epp('irqbalance/usr/lib/systemd/system/irqbalance.service.d/puppet.conf.epp'),
+      content => epp('irqbalance/usr/lib/systemd/system/irqbalance.service.d/puppet.conf.epp', { 'oneshot' => $oneshot }),
       notify  => [ Class['systemd::systemctl::daemon_reload'], Service[$service_name] ],
     }
 

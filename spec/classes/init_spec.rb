@@ -93,4 +93,22 @@ describe 'irqbalance' do
         .with_content(%r{^EXTRA_ARGS='--beep --boop'$})
     }
   end
+  context 'when given values for params used in /usr/lib/systemd/system/irqbalance.service.d/puppet.conf' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+      }
+    end
+    let(:params) do
+      {
+        'oneshot' => true,
+      }
+    end
+
+    it {
+      is_expected.to contain_file('/usr/lib/systemd/system/irqbalance.service.d/puppet.conf')
+        .with_content(%r{^Type=oneshot$})
+        .with_content(%r{^RemainAfterExit=yes$})
+    }
+  end
 end
