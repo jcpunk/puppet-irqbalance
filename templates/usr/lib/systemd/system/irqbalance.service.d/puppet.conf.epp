@@ -7,4 +7,5 @@ RemainAfterExit=yes
 Type=simple
 <% } -%>
 EnvironmentFile=/etc/sysconfig/irqbalance
+ExecStart=
 ExecStart=/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS

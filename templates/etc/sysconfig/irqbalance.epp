@@ -3,7 +3,7 @@
   Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
   Optional[Integer] $powerthresh = undef,
   Optional[Array[Integer]] $ban_irq = [],
-  Optional[Array[Regexp[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
+  Optional[Array[Pattern[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
   Optional[Integer[0,3]] $deepestcache = undef,
   Optional[Stdlib::Absolutepath] $policyscript = undef,
   Optional[String] $extra_args = undef,
@@ -52,9 +52,7 @@ POWERTHRESH='--powerthresh=<%= $powerthresh %>'
 POWERTHRESH=''
 <% } -%>
 <% if $ban_irq != [] { -%>
-BANIRQ='<% $ban_irq.each |$ban_it| { -%>
-<%    "--banirq=${ban_it} " -%>
-<%   } -%>
+BANIRQ='<%= $ban_irq.map |$ban_it| {"--banirq=${ban_it}"}.join(' ') -%>
 '
 <% } else { -%>
 BANIRQ=''
