@@ -62,4 +62,35 @@ describe 'irqbalance' do
         .with_content(%r{#IRQBALANCE_BANNED_CPUS=""})
     }
   end
+  context 'when given values for params used in /etc/sysconfig/irqbalance' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+      }
+    end
+    let(:params) do
+      {
+        'oneshot'      => true,
+        'hintpolicy'   => 'exact',
+        'powerthresh'  => 389,
+        'ban_irq'      => [3, 7],
+        'ban_cpu'      => ['3A'],
+        'deepestcache' => 3,
+        'policyscript' => '/usr/bin/foo.sh',
+        'extra_args'   => '--beep --boop',
+      }
+    end
+
+    it {
+      is_expected.to contain_file('/etc/sysconfig/irqbalance')
+        .with_content(%r{^IRQBALANCE_ONESHOT="yes"$})
+        .with_content(%r{^HINTPOLICY='--hintpolicy=exact'$})
+        .with_content(%r{^POWERTHRESH='--powerthresh=389'$})
+        .with_content(%r{^BANIRQ='--banirq=3 --banirq=7'$})
+        .with_content(%r{^IRQBALANCE_BANNED_CPUS="3A"$})
+        .with_content(%r{^DEEPESTCACHE='--deepestcache=3'$})
+        .with_content(%r{^POLICYSCRIPT='--policyscript=\/usr\/bin\/foo.sh'$})
+        .with_content(%r{^EXTRA_ARGS='--beep --boop'$})
+    }
+  end
 end

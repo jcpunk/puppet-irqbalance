@@ -9,7 +9,7 @@ class irqbalance (
   Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
   Optional[Integer] $powerthresh = undef,
   Optional[Array[Integer]] $ban_irq = [],
-  Optional[Array[Regexp[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
+  Optional[Array[Pattern[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
   Optional[Integer[0,3]] $deepestcache = undef,
   Optional[Stdlib::Absolutepath] $policyscript = undef,
   Optional[String] $extra_args = undef,
@@ -49,12 +49,23 @@ class irqbalance (
       notify  => [ Class['systemd::systemctl::daemon_reload'], Service[$service_name] ],
     }
 
+    $sysconfig_params = {
+      'oneshot'      => $oneshot,
+      'hintpolicy'   => $hintpolicy,
+      'powerthresh'  => $powerthresh,
+      'ban_irq'      => $ban_irq,
+      'ban_cpu'      => $ban_cpu,
+      'deepestcache' => $deepestcache,
+      'policyscript' => $policyscript,
+      'extra_args'   => $extra_args,
+    }
+
     file {'/etc/sysconfig/irqbalance':
       ensure  => 'file',
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => epp('irqbalance/etc/sysconfig/irqbalance.epp'),
+      content => epp('irqbalance/etc/sysconfig/irqbalance.epp', $sysconfig_params),
       notify  => Service[$service_name],
     }
   }
