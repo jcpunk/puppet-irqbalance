@@ -3,6 +3,12 @@ require 'spec_helper'
 describe 'irqbalance' do
 
   context 'without parameters' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+      }
+    end
+
     it { should compile.with_all_deps }
     it {
       is_expected.to contain_package('irqbalance').

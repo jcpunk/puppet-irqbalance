@@ -3,5 +3,7 @@
 ---
 fixtures:
   forge_modules:
-     stdlib: "puppetlabs/stdlib"
-     systemd: "camptocamp/systemd"
+    stdlib: "puppetlabs/stdlib"
+    systemd:
+      repo: "camptocamp/systemd"
+      ref: "2.12.0"
