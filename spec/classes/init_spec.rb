@@ -17,7 +17,7 @@ describe 'irqbalance' do
 
     it {
       is_expected.to contain_service('irqbalance.service')
-        .with_ensure('running')
+        .with_ensure(true)
         .with_enable(true)
     }
 
@@ -26,25 +26,23 @@ describe 'irqbalance' do
         .with_ensure('file')
         .with_owner('root')
         .with_group('root')
-        .with_mode('0644')
+        .with_mode('0444')
     }
 
     it {
-      is_expected.to contain_file('/usr/lib/systemd/system/irqbalance.service.d')
+      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d')
         .with_ensure('directory')
         .with_owner('root')
         .with_group('root')
-        .with_mode('0755')
     }
 
     it {
-      is_expected.to contain_file('/usr/lib/systemd/system/irqbalance.service.d/puppet.conf')
+      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d/puppet.conf')
         .with_ensure('file')
         .with_owner('root')
         .with_group('root')
-        .with_mode('0644')
+        .with_mode('0444')
         .that_notifies('Service[irqbalance.service]')
-        .that_notifies('Class[systemd::systemctl::daemon_reload]')
         .with_content(%r{\[Service\]})
         .with_content(%r{Type=simple})
         .with_content(%r{EnvironmentFile=\/etc\/sysconfig\/irqbalance})
@@ -93,7 +91,7 @@ describe 'irqbalance' do
         .with_content(%r{^EXTRA_ARGS='--beep --boop'$})
     }
   end
-  context 'when given values for params used in /usr/lib/systemd/system/irqbalance.service.d/puppet.conf' do
+  context 'when given values for params used in /etc/systemd/system/irqbalance.service.d/puppet.conf' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
@@ -106,7 +104,7 @@ describe 'irqbalance' do
     end
 
     it {
-      is_expected.to contain_file('/usr/lib/systemd/system/irqbalance.service.d/puppet.conf')
+      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d/puppet.conf')
         .with_content(%r{^Type=oneshot$})
         .with_content(%r{^RemainAfterExit=yes$})
     }

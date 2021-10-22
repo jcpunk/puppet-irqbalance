@@ -15,64 +15,52 @@ class irqbalance (
   Optional[String] $extra_args = undef,
 ) {
 
-  include systemd::systemctl::daemon_reload
-
   if $package_manage {
     package { $package_name:
       ensure => $package_ensure,
-      notify => Service[$service_name],
-      before => Service[$service_name],
+      notify => Systemd::Unit_file[$service_name],
     }
   }
 
-  if $service_ensure == 'running' or $service_enable {
-    file {"/usr/lib/systemd/system/${service_name}":
-      ensure => 'file',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644',
-    }
-
-    file {"/usr/lib/systemd/system/${service_name}.d":
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0755',
-    }
-
-    file {"/usr/lib/systemd/system/${service_name}.d/puppet.conf":
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => epp('irqbalance/usr/lib/systemd/system/irqbalance.service.d/puppet.conf.epp', { 'oneshot' => $oneshot }),
-      notify  => [ Class['systemd::systemctl::daemon_reload'], Service[$service_name] ],
-    }
-
-    $sysconfig_params = {
-      'oneshot'      => $oneshot,
-      'hintpolicy'   => $hintpolicy,
-      'powerthresh'  => $powerthresh,
-      'ban_irq'      => $ban_irq,
-      'ban_cpu'      => $ban_cpu,
-      'deepestcache' => $deepestcache,
-      'policyscript' => $policyscript,
-      'extra_args'   => $extra_args,
-    }
-
-    file {'/etc/sysconfig/irqbalance':
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => epp('irqbalance/etc/sysconfig/irqbalance.epp', $sysconfig_params),
-      notify  => Service[$service_name],
-    }
+  if $service_ensure == 'running' {
+    $unitfile_active = true
+  } else {
+    $unitfile_active = false
   }
 
-  service { $service_name:
-    ensure => $service_ensure,
+  systemd::unit_file { $service_name:
+    path   => '/usr/lib/systemd/system',
     enable => $service_enable,
+    active => $unitfile_active,
+  }
+
+  $dropin_params = {
+    'oneshot' => $oneshot,
+  }
+
+  systemd::dropin_file { 'puppet.conf':
+    unit           => $service_name,
+    content        => epp('irqbalance/etc/systemd/system/irqbalance.service.d/puppet.conf.epp', $dropin_params),
+    notify_service => true,
+  }
+
+  $sysconfig_params = {
+    'oneshot'      => $oneshot,
+    'hintpolicy'   => $hintpolicy,
+    'powerthresh'  => $powerthresh,
+    'ban_irq'      => $ban_irq,
+    'ban_cpu'      => $ban_cpu,
+    'deepestcache' => $deepestcache,
+    'policyscript' => $policyscript,
+    'extra_args'   => $extra_args,
+  }
+
+  file {'/etc/sysconfig/irqbalance':
+    ensure  => 'file',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => epp('irqbalance/etc/sysconfig/irqbalance.epp', $sysconfig_params),
+    notify  => Systemd::Unit_file[$service_name],
   }
 }
-
