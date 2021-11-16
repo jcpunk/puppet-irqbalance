@@ -1,6 +1,6 @@
 {
   "name": "jcpunk-irqbalance",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "jcpunk@gmail.com",
   "summary": "Manage IRQ balance on Linux",
   "license": "Apache-2.0",
