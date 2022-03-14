@@ -1,6 +1,14 @@
 require 'spec_helper'
 
 describe 'irqbalance' do
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      let(:facts) { os_facts }
+
+      it { is_expected.to compile }
+    end
+  end
+
   context 'without parameters' do
     let(:facts) do
       {
@@ -60,6 +68,7 @@ describe 'irqbalance' do
         .with_content(%r{#IRQBALANCE_BANNED_CPUS=""})
     }
   end
+
   context 'when given values for params used in /etc/sysconfig/irqbalance' do
     let(:facts) do
       {
@@ -91,6 +100,7 @@ describe 'irqbalance' do
         .with_content(%r{^EXTRA_ARGS='--beep --boop'$})
     }
   end
+
   context 'when given values for params used in /etc/systemd/system/irqbalance.service.d/puppet.conf' do
     let(:facts) do
       {
