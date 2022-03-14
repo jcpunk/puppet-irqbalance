@@ -4,6 +4,8 @@ class irqbalance (
   String $package_name = 'irqbalance',
   String $service_name = 'irqbalance.service',
   Stdlib::Ensure::Service $service_ensure = 'running',
+  Stdlib::Absolutepath $irqbalance_binary = '/usr/sbin/irqbalance',
+  Stdlib::Absolutepath $irqbalance_env_file = '/etc/sysconfig/irqbalance',
   Boolean $service_enable = true,
   Boolean $oneshot = false,
   Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
@@ -35,7 +37,9 @@ class irqbalance (
   }
 
   $dropin_params = {
-    'oneshot' => $oneshot,
+    'oneshot'             => $oneshot,
+    'irqbalance_binary'   => $irqbalance_binary,
+    'irqbalance_env_file' => $irqbalance_env_file,
   }
 
   systemd::dropin_file { 'puppet.conf':
@@ -57,6 +61,7 @@ class irqbalance (
 
   file {'/etc/sysconfig/irqbalance':
     ensure  => 'file',
+    path    => $irqbalance_env_file,
     owner   => 'root',
     group   => 'root',
     mode    => '0644',

@@ -1,4 +1,8 @@
-<%- | Boolean $oneshot = false | -%>
+<%- |
+  Boolean $oneshot = false,
+  Stdlib::Absolutepath $irqbalance_binary = '/usr/sbin/irqbalance',
+  Stdlib::Absolutepath $irqbalance_env_file = '/etc/sysconfig/irqbalance',
+| -%>
 [Service]
 <% if $oneshot { -%>
 Type=oneshot
@@ -6,6 +10,6 @@ RemainAfterExit=yes
 <% } else { -%>
 Type=simple
 <% } -%>
-EnvironmentFile=/etc/sysconfig/irqbalance
+EnvironmentFile=<%= $irqbalance_env_file %>
 ExecStart=
-ExecStart=/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS
+ExecStart=<%= $irqbalance_binary %> --foreground $IRQBALANCE_ARGS
