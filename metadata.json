@@ -5,6 +5,8 @@
   "summary": "Manage IRQ balance on Linux",
   "license": "Apache-2.0",
   "source": "https://github.com/jcpunk/puppet-irqbalance",
+  "project_page": "https://github.com/jcpunk/puppet-irqbalance",
+  "issues_url": "https://github.com/jcpunk/puppet-irqbalance/issues",
   "dependencies": [
     {
       "name": "puppet/systemd",
