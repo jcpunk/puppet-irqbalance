@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'irqbalance' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts) { os_facts.merge({ 'processors' => { 'cores' => 2 }}) }
 
       it { is_expected.to compile }
     end
@@ -13,6 +13,7 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
+        'processors' => { 'cores' => 2 },
       }
     end
 
@@ -73,8 +74,10 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
+        'processors' => { 'cores' => 2 },
       }
     end
+
     let(:params) do
       {
         'oneshot'      => true,
@@ -105,8 +108,10 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
+        'processors' => { 'cores' => 2 },
       }
     end
+
     let(:params) do
       {
         'oneshot' => true,
@@ -118,5 +123,29 @@ describe 'irqbalance' do
         .with_content(%r{^Type=oneshot$})
         .with_content(%r{^RemainAfterExit=yes$})
     }
+  end
+
+  context 'without enough CPU cores' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+        'processors' => { 'cores' => 1 },
+      }
+    end
+
+    let(:params) do
+      {
+        'service_ensure' => 'running',
+        'service_enable' => true,
+      }
+    end
+
+    it { is_expected.to compile.with_all_deps }
+    it {
+      is_expected.to contain_service('irqbalance.service')
+        .with_ensure(false)
+        .with_enable(false)
+    }
+
   end
 end

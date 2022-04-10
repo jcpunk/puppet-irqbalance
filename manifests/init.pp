@@ -1,3 +1,5 @@
+# @summary Manage the irqbalance service
+#
 class irqbalance (
   Boolean $package_manage = true,
   String $package_ensure = 'installed',
@@ -30,10 +32,20 @@ class irqbalance (
     $unitfile_active = false
   }
 
-  systemd::unit_file { $service_name:
-    path   => '/usr/lib/systemd/system',
-    enable => $service_enable,
-    active => $unitfile_active,
+  if $facts['processors']['cores'] < 2 {
+    # systems with 1 physical core can't run irqbalance
+    # it is part of the internal logic of the binary itself
+    systemd::unit_file { $service_name:
+      path   => '/usr/lib/systemd/system',
+      enable => false,
+      active => false,
+    }
+  } else {
+    systemd::unit_file { $service_name:
+      path   => '/usr/lib/systemd/system',
+      enable => $service_enable,
+      active => $unitfile_active,
+    }
   }
 
   $dropin_params = {
