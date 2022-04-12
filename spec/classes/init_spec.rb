@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'irqbalance' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts.merge({ 'processors' => { 'cores' => 2 }}) }
+      let(:facts) { os_facts.merge({ 'processors' => { 'count' => 2 }}) }
 
       it { is_expected.to compile }
     end
@@ -13,7 +13,7 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
-        'processors' => { 'cores' => 2 },
+        'processors' => { 'count' => 2 },
       }
     end
 
@@ -74,7 +74,7 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
-        'processors' => { 'cores' => 2 },
+        'processors' => { 'count' => 2 },
       }
     end
 
@@ -108,7 +108,7 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
-        'processors' => { 'cores' => 2 },
+        'processors' => { 'count' => 2 },
       }
     end
 
@@ -129,7 +129,7 @@ describe 'irqbalance' do
     let(:facts) do
       {
         'path' => '/bin:/usr/bin',
-        'processors' => { 'cores' => 1 },
+        'processors' => { 'count' => 1 },
       }
     end
 

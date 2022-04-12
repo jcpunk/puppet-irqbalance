@@ -32,8 +32,8 @@ class irqbalance (
     $unitfile_active = false
   }
 
-  if $facts['processors']['cores'] < 2 {
-    # systems with 1 physical core can't run irqbalance
+  if $facts['processors']['count'] < 2 {
+    # systems with 1c/1t can't run irqbalance
     # it is part of the internal logic of the binary itself
     systemd::unit_file { $service_name:
       path   => '/usr/lib/systemd/system',
