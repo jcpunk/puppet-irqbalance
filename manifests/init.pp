@@ -54,8 +54,9 @@ class irqbalance (
     'irqbalance_env_file' => $irqbalance_env_file,
   }
 
-  systemd::dropin_file { 'puppet.conf':
+  systemd::dropin_file { 'irqbalance/puppet.conf':
     unit           => $service_name,
+    filename       => 'puppet.conf',
     content        => epp('irqbalance/etc/systemd/system/irqbalance.service.d/puppet.conf.epp', $dropin_params),
     notify_service => true,
   }
