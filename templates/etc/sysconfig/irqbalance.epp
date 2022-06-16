@@ -10,16 +10,14 @@
 | -%>
 # This file is controlled by Puppet
 
-
 # irqbalance is a daemon process that distributes interrupts across
 # CPUS on SMP systems. The default is to rebalance once every 10
 # seconds. This is the environment file that is specified to systemd via the
 # EnvironmentFile key in the service unit file (or via whatever method the init
 # system you're using has.
 #
-# type=oneshot
-#
-# after starting, it will wait for a minute, then look at the interrupt
+# ONESHOT=yes
+# after starting, wait for a minute, then look at the interrupt
 # load and balance it once; after balancing exit and do not change
 # it again.
 <% if $oneshot { -%>
