@@ -6,4 +6,4 @@ fixtures:
     stdlib: "puppetlabs/stdlib"
     systemd:
       repo: "puppet/systemd"
-      ref: "3.1.0"
+      ref: "6.0.0"
