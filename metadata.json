@@ -1,6 +1,6 @@
 {
   "name": "jcpunk-irqbalance",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "jcpunk@gmail.com",
   "summary": "Manage IRQ balance on Linux",
   "license": "Apache-2.0",
@@ -10,7 +10,7 @@
   "dependencies": [
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 3.1.0 < 5.0.0"
+      "version_requirement": ">= 3.1.0 < 7.0.0"
     }
   ],
   "operatingsystem_support": [
