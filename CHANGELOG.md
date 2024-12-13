@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 1.0.7
+
+**Features**
+
+Note puppet-systemd 8.0.0 compatibility
+
 ## Release 1.0.6
 
 **Features**
