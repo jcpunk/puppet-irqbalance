@@ -3,6 +3,7 @@
   Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
   Optional[Integer] $powerthresh = undef,
   Optional[Array[Integer]] $ban_irq = [],
+  Optional[Array[String]] $ban_mod = [],
   Optional[Array[Pattern[/^[0-9a-fA-F]+$/]]] $ban_cpu = [],
   Optional[Integer[0,3]] $deepestcache = undef,
   Optional[Stdlib::Absolutepath] $policyscript = undef,
@@ -55,6 +56,12 @@ BANIRQ='<%= $ban_irq.map |$ban_it| {"--banirq=${ban_it}"}.join(' ') -%>
 <% } else { -%>
 BANIRQ=''
 <% } -%>
+<% if $ban_mod != [] { -%>
+BANMOD='<%= $ban_mod.map |$ban_it| {"--banmod=${ban_it}"}.join(' ') -%>
+'
+<% } else { -%>
+BANMOD=''
+<% } -%>
 <% if $deepestcache { -%>
 DEEPESTCACHE='--deepestcache=<%= $deepestcache %>'
 <% } else { -%>
@@ -67,4 +74,4 @@ POLICYSCRIPT=''
 <% } -%>
 EXTRA_ARGS='<%= $extra_args %>'
 
-IRQBALANCE_ARGS="${HINTPOLICY} ${POWERTHRESH} ${BANIRQ} ${DEEPESTCACH} ${POLICYSCRIPT} ${EXTRA_ARGS}"
+IRQBALANCE_ARGS="${HINTPOLICY} ${POWERTHRESH} ${BANIRQ} ${BANMOD} ${DEEPESTCACH} ${POLICYSCRIPT} ${EXTRA_ARGS}"

@@ -24,6 +24,7 @@ describe 'irqbalance' do
         .that_notifies('Service[irqbalance.service]')
     }
 
+    it { is_expected.to contain_systemd__unit_file('irqbalance.service') }
     it {
       is_expected.to contain_service('irqbalance.service')
         .with_ensure(true)
@@ -84,6 +85,7 @@ describe 'irqbalance' do
         'hintpolicy'   => 'exact',
         'powerthresh'  => 389,
         'ban_irq'      => [3, 7],
+        'ban_mod'      => ['a', 'b'],
         'ban_cpu'      => ['3A'],
         'deepestcache' => 3,
         'policyscript' => '/usr/bin/foo.sh',
@@ -97,6 +99,7 @@ describe 'irqbalance' do
         .with_content(%r{^HINTPOLICY='--hintpolicy=exact'$})
         .with_content(%r{^POWERTHRESH='--powerthresh=389'$})
         .with_content(%r{^BANIRQ='--banirq=3 --banirq=7'$})
+        .with_content(%r{^BANMOD='--banmod=a --banmod=b'$})
         .with_content(%r{^IRQBALANCE_BANNED_CPUS="3A"$})
         .with_content(%r{^DEEPESTCACHE='--deepestcache=3'$})
         .with_content(%r{^POLICYSCRIPT='--policyscript=\/usr\/bin\/foo.sh'$})
@@ -117,6 +120,8 @@ describe 'irqbalance' do
         'oneshot' => true,
       }
     end
+
+    it { is_expected.to contain_systemd__dropin_file('irqbalance/puppet.conf') }
 
     it {
       is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d/puppet.conf')
