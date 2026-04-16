@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'irqbalance' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts.merge({ 'processors' => { 'count' => 2 }}) }
+      let(:facts) { os_facts.merge({ 'processors' => { 'count' => 2 } }) }
 
       it { is_expected.to compile }
     end
@@ -24,39 +24,27 @@ describe 'irqbalance' do
         .that_notifies('Service[irqbalance.service]')
     }
 
-    it { is_expected.to contain_systemd__unit_file('irqbalance.service') }
+    it {
+      is_expected.to contain_systemd__manage_dropin('puppet-oneshot.conf')
+        .with_ensure('absent')
+    }
+    it {
+      is_expected.to contain_systemd__manage_dropin('puppet.conf')
+        .with_ensure('present')
+        .with_unit('irqbalance.service')
+        .with_service_entry({
+                              'EnvironmentFile' => '/etc/sysconfig/irqbalance',
+                              'ExecStart' => [
+                                '',
+                                '/usr/sbin/irqbalance --foreground $IRQBALANCE_ARGS',
+                              ]
+                            })
+    }
+
     it {
       is_expected.to contain_service('irqbalance.service')
-        .with_ensure(true)
+        .with_ensure('running')
         .with_enable(true)
-    }
-
-    it {
-      is_expected.to contain_file('/usr/lib/systemd/system/irqbalance.service')
-        .with_ensure('file')
-        .with_owner('root')
-        .with_group('root')
-        .with_mode('0444')
-    }
-
-    it {
-      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d')
-        .with_ensure('directory')
-        .with_owner('root')
-        .with_group('root')
-    }
-
-    it {
-      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d/puppet.conf')
-        .with_ensure('file')
-        .with_owner('root')
-        .with_group('root')
-        .with_mode('0444')
-        .that_notifies('Service[irqbalance.service]')
-        .with_content(%r{\[Service\]})
-        .with_content(%r{Type=simple})
-        .with_content(%r{EnvironmentFile=\/etc\/sysconfig\/irqbalance})
-        .with_content(%r{ExecStart=\/usr\/sbin\/irqbalance --foreground \$IRQBALANCE_ARGS})
     }
 
     it {
@@ -66,8 +54,8 @@ describe 'irqbalance' do
         .with_group('root')
         .with_mode('0644')
         .that_notifies('Service[irqbalance.service]')
-        .with_content(%r{#IRQBALANCE_ONESHOT="no"})
-        .with_content(%r{#IRQBALANCE_BANNED_CPUS=""})
+        .with_content(%r{^#IRQBALANCE_BANNED_CPULIST=""})
+        .with_content(%r{^IRQBALANCE_ARGS="--hintpolicy=ignore -j"})
     }
   end
 
@@ -86,25 +74,20 @@ describe 'irqbalance' do
         'powerthresh'  => 389,
         'ban_irq'      => [3, 7],
         'ban_mod'      => ['a', 'b'],
-        'ban_cpu'      => ['3A'],
+        'ban_cpu_list' => ['0', '0-11'],
         'deepestcache' => 3,
         'policyscript' => '/usr/bin/foo.sh',
-        'extra_args'   => '--beep --boop',
+        'migrateval'   => 4,
+        'interval'     => 5,
+        'extra_args'   => ['--beep', '--boop'],
       }
     end
 
     it {
       is_expected.to contain_file('/etc/sysconfig/irqbalance')
-        .with_content(%r{^IRQBALANCE_ONESHOT="yes"$})
-        .with_content(%r{^HINTPOLICY='--hintpolicy=exact'$})
-        .with_content(%r{^POWERTHRESH='--powerthresh=389'$})
-        .with_content(%r{^BANIRQ='--banirq=3 --banirq=7'$})
-        .with_content(%r{^BANMOD='--banmod=a --banmod=b'$})
-        .with_content(%r{^IRQBALANCE_BANNED_CPUS="3A"$})
-        .with_content(%r{^DEEPESTCACHE='--deepestcache=3'$})
-        .with_content(%r{^POLICYSCRIPT='--policyscript=\/usr\/bin\/foo.sh'$})
-        .with_content(%r{^EXTRA_ARGS='--beep --boop'$})
-    }
+        .with_content(%r{^IRQBALANCE_BANNED_CPULIST="0,0-11"})
+        .with_content(%r{^IRQBALANCE_ARGS="--hintpolicy=exact --oneshot --powerthresh=389 --deepestcache=3 --policyscript=/usr/bin/foo.sh --migrateval=4 --interval=5 --banirq=3 --banirq=7 --banmod=a --banmod=b --beep --boop"}) # rubocop:disable Layout/LineLength
+    } # rubocop:enable Layout/LineLength
   end
 
   context 'when given values for params used in /etc/systemd/system/irqbalance.service.d/puppet.conf' do
@@ -121,12 +104,28 @@ describe 'irqbalance' do
       }
     end
 
-    it { is_expected.to contain_systemd__dropin_file('irqbalance/puppet.conf') }
-
     it {
-      is_expected.to contain_file('/etc/systemd/system/irqbalance.service.d/puppet.conf')
-        .with_content(%r{^Type=oneshot$})
-        .with_content(%r{^RemainAfterExit=yes$})
+      is_expected.to contain_systemd__manage_dropin('puppet.conf')
+        .with_ensure('present')
+        .with_unit('irqbalance.service')
+    }
+    it {
+      is_expected.to contain_systemd__manage_dropin('puppet-oneshot.conf')
+        .with_ensure('present')
+        .with_unit('irqbalance.service')
+        .with_service_entry({
+                              'Type' => 'oneshot',
+                              'RemainAfterExit' => true,
+                            })
+    }
+    it {
+      is_expected.to contain_file('/etc/sysconfig/irqbalance')
+        .with_ensure('file')
+        .with_owner('root')
+        .with_group('root')
+        .with_mode('0644')
+        .that_notifies('Service[irqbalance.service]')
+        .with_content(%r{IRQBALANCE_ARGS="--hintpolicy=ignore --oneshot -j"})
     }
   end
 
@@ -148,9 +147,8 @@ describe 'irqbalance' do
     it { is_expected.to compile.with_all_deps }
     it {
       is_expected.to contain_service('irqbalance.service')
-        .with_ensure(false)
+        .with_ensure('stopped')
         .with_enable(false)
     }
-
   end
 end

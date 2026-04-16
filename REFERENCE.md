@@ -6,13 +6,40 @@
 
 ### Classes
 
-* [`irqbalance`](#irqbalance): Manage the irqbalance service
+* [`irqbalance`](#irqbalance): Manages the irqbalance daemon, which distributes hardware interrupts
+across CPUs on SMP systems to improve performance.
 
 ## Classes
 
 ### <a name="irqbalance"></a>`irqbalance`
 
-Manage the irqbalance service
+Manages the irqbalance daemon, which distributes hardware interrupts
+across CPUs on SMP systems to improve performance.
+
+#### Examples
+
+##### Minimal — accept all defaults
+
+```puppet
+include irqbalance
+```
+
+##### Pin specific IRQs and exclude CPUs from balancing
+
+```puppet
+class { 'irqbalance':
+  ban_irq      => [24, 25],
+  ban_cpu_list => ['0', '56-63'],
+}
+```
+
+##### One-shot rebalancing at boot only
+
+```puppet
+class { 'irqbalance':
+  oneshot => true,
+}
+```
 
 #### Parameters
 
@@ -23,24 +50,27 @@ The following parameters are available in the `irqbalance` class:
 * [`package_name`](#-irqbalance--package_name)
 * [`service_name`](#-irqbalance--service_name)
 * [`service_ensure`](#-irqbalance--service_ensure)
+* [`service_enable`](#-irqbalance--service_enable)
 * [`irqbalance_binary`](#-irqbalance--irqbalance_binary)
 * [`irqbalance_env_file`](#-irqbalance--irqbalance_env_file)
-* [`service_enable`](#-irqbalance--service_enable)
 * [`oneshot`](#-irqbalance--oneshot)
 * [`hintpolicy`](#-irqbalance--hintpolicy)
 * [`powerthresh`](#-irqbalance--powerthresh)
 * [`ban_irq`](#-irqbalance--ban_irq)
 * [`ban_mod`](#-irqbalance--ban_mod)
-* [`ban_cpu`](#-irqbalance--ban_cpu)
+* [`ban_cpu_list`](#-irqbalance--ban_cpu_list)
 * [`deepestcache`](#-irqbalance--deepestcache)
 * [`policyscript`](#-irqbalance--policyscript)
+* [`migrateval`](#-irqbalance--migrateval)
+* [`interval`](#-irqbalance--interval)
 * [`extra_args`](#-irqbalance--extra_args)
 
 ##### <a name="-irqbalance--package_manage"></a>`package_manage`
 
 Data type: `Boolean`
 
-
+Whether this module should manage the irqbalance package. Set to false if
+package installation is handled externally (e.g. a base image or another module).
 
 Default value: `true`
 
@@ -48,7 +78,8 @@ Default value: `true`
 
 Data type: `String`
 
-
+The ensure value passed to the package resource. Use 'latest' to track updates
+or a specific version string to pin the package.
 
 Default value: `'installed'`
 
@@ -56,7 +87,7 @@ Default value: `'installed'`
 
 Data type: `String`
 
-
+The name of the irqbalance package as it appears in the distribution repository.
 
 Default value: `'irqbalance'`
 
@@ -64,7 +95,8 @@ Default value: `'irqbalance'`
 
 Data type: `String`
 
-
+The systemd service unit name. Override if the unit is named differently on a
+non-standard installation.
 
 Default value: `'irqbalance.service'`
 
@@ -72,15 +104,24 @@ Default value: `'irqbalance.service'`
 
 Data type: `Stdlib::Ensure::Service`
 
-
+The desired state of the irqbalance service. Accepts 'running' or 'stopped'.
 
 Default value: `'running'`
+
+##### <a name="-irqbalance--service_enable"></a>`service_enable`
+
+Data type: `Boolean`
+
+Whether the irqbalance service should be enabled to start on boot.
+
+Default value: `true`
 
 ##### <a name="-irqbalance--irqbalance_binary"></a>`irqbalance_binary`
 
 Data type: `Stdlib::Absolutepath`
 
-
+Absolute path to the irqbalance executable. Override if irqbalance is installed
+outside the standard system paths (e.g. via Spack or a custom prefix).
 
 Default value: `'/usr/sbin/irqbalance'`
 
@@ -88,23 +129,18 @@ Default value: `'/usr/sbin/irqbalance'`
 
 Data type: `Stdlib::Absolutepath`
 
-
+Absolute path to the environment file read by the systemd service unit. This
+file is fully managed by Puppet; manual edits will be overwritten.
 
 Default value: `'/etc/sysconfig/irqbalance'`
-
-##### <a name="-irqbalance--service_enable"></a>`service_enable`
-
-Data type: `Boolean`
-
-
-
-Default value: `true`
 
 ##### <a name="-irqbalance--oneshot"></a>`oneshot`
 
 Data type: `Boolean`
 
-
+When true, irqbalance performs a single rebalancing pass at startup then exits.
+Useful for systems where interrupt affinity should be set once at boot rather
+than continuously adjusted. Equivalent to --oneshot.
 
 Default value: `false`
 
@@ -112,7 +148,10 @@ Default value: `false`
 
 Data type: `Enum['exact','subset','ignore']`
 
-
+Controls how irqbalance interprets IRQ locality hints from device drivers.
+'exact' places the IRQ on the exact CPU indicated by the hint, 'subset' places
+it on a CPU within the hinted set, and 'ignore' disregards hints entirely.
+Equivalent to --hintpolicy.
 
 Default value: `'ignore'`
 
@@ -120,31 +159,37 @@ Default value: `'ignore'`
 
 Data type: `Optional[Integer]`
 
-
+Number of CPUs below which irqbalance will consolidate interrupts onto fewer
+CPUs to reduce power consumption. When undef, the irqbalance default applies.
+Equivalent to --powerthresh.
 
 Default value: `undef`
 
 ##### <a name="-irqbalance--ban_irq"></a>`ban_irq`
 
-Data type: `Optional[Array[Integer]]`
+Data type: `Array[Integer]`
 
-
+List of IRQ numbers irqbalance should never assign to any CPU.
+Equivalent to passing one --banirq flag per entry.
 
 Default value: `[]`
 
 ##### <a name="-irqbalance--ban_mod"></a>`ban_mod`
 
-Data type: `Optional[Array[String]]`
+Data type: `Array[String]`
 
-
+List of kernel module names whose IRQs irqbalance should never rebalance.
+Equivalent to passing one --banmod flag per entry.
 
 Default value: `[]`
 
-##### <a name="-irqbalance--ban_cpu"></a>`ban_cpu`
+##### <a name="-irqbalance--ban_cpu_list"></a>`ban_cpu_list`
 
-Data type: `Optional[Array[Pattern[/^[0-9a-fA-F]+$/]]]`
+Data type: `Array[Pattern[/^\d+(-\d+)?$/]]`
 
-
+List of CPU numbers and ranges to exclude from interrupt balancing, expressed
+as strings (e.g. ['0', '6-11', '56-63']). Sets IRQBALANCE_BANNED_CPULIST in
+the environment file.
 
 Default value: `[]`
 
@@ -152,7 +197,8 @@ Default value: `[]`
 
 Data type: `Optional[Integer[0,3]]`
 
-
+Deepest cache level (0–3) at which irqbalance will attempt to group IRQs.
+When undef, irqbalance uses its compiled-in default. Equivalent to --deepestcache.
 
 Default value: `undef`
 
@@ -160,15 +206,37 @@ Default value: `undef`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
+Absolute path to a script irqbalance will call to determine the balancing
+policy for each IRQ. When undef, no script is used. Equivalent to --policyscript.
 
+Default value: `undef`
+
+##### <a name="-irqbalance--migrateval"></a>`migrateval`
+
+Data type: `Optional[Integer[1]]`
+
+Minimum load distribution improvement ratio required to trigger an IRQ
+migration. Higher values require greater improvement (e.g. 2 requires 50%
+improvement, 4 requires 25%). When undef, any improvement triggers migration.
+Equivalent to --migrateval.
+
+Default value: `undef`
+
+##### <a name="-irqbalance--interval"></a>`interval`
+
+Data type: `Optional[Integer[1]]`
+
+Seconds between irq load samples. When undef, irqbalance defaults to 10.
+Equivalent to --interval.
 
 Default value: `undef`
 
 ##### <a name="-irqbalance--extra_args"></a>`extra_args`
 
-Data type: `Optional[String]`
+Data type: `Array[String]`
 
+Additional command-line flags passed verbatim to irqbalance. Each array
+element is appended as a separate argument.
 
-
-Default value: `undef`
+Default value: `['-j']`
 
