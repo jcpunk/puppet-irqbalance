@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.0.1
+
+**Bug Fixes**
+
+- Drop `hintpolicy` since it is obsolete
+
 ## Release 2.0.0
 
 **Bug Fixes**

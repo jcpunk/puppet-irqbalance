@@ -49,12 +49,6 @@
 #   Useful for systems where interrupt affinity should be set once at boot rather
 #   than continuously adjusted. Equivalent to --oneshot.
 #
-# @param hintpolicy
-#   Controls how irqbalance interprets IRQ locality hints from device drivers.
-#   'exact' places the IRQ on the exact CPU indicated by the hint, 'subset' places
-#   it on a CPU within the hinted set, and 'ignore' disregards hints entirely.
-#   Equivalent to --hintpolicy.
-#
 # @param powerthresh
 #   Number of CPUs below which irqbalance will consolidate interrupts onto fewer
 #   CPUs to reduce power consumption. When undef, the irqbalance default applies.
@@ -104,7 +98,6 @@ class irqbalance (
   Stdlib::Absolutepath $irqbalance_env_file = '/etc/sysconfig/irqbalance',
   Boolean $service_enable = true,
   Boolean $oneshot = false,
-  Enum['exact','subset','ignore'] $hintpolicy = 'ignore',
   Array[Integer] $ban_irq = [],
   Array[String] $ban_mod = [],
   Array[Pattern[/^\d+(-\d+)?$/]] $ban_cpu_list   = [],
@@ -172,7 +165,6 @@ class irqbalance (
 
   $sysconfig_params = {
     'oneshot'      => $oneshot,
-    'hintpolicy'   => $hintpolicy,
     'powerthresh'  => $powerthresh,
     'ban_irq'      => $ban_irq,
     'ban_mod'      => $ban_mod,

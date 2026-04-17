@@ -1,6 +1,5 @@
 <%- |
   Boolean                                  $oneshot      = false,
-  Enum['exact','subset','ignore']          $hintpolicy   = 'ignore',
   Optional[Integer]                        $powerthresh  = undef,
   Array[Integer]                           $ban_irq      = [],
   Array[String]                            $ban_mod      = [],
@@ -11,8 +10,7 @@
   Optional[Integer[1]]                     $interval     = undef,
   Array[String]                            $extra_args   = [],
 | -%>
-<%- $args = ["--hintpolicy=${hintpolicy}"]
-          + ($oneshot      ?          { true => ['--oneshot'], false => [] })
+<%- $args = ($oneshot      ?          { true => ['--oneshot'], false => [] })
           + ($powerthresh  =~ Undef ? { true => [], false => ["--powerthresh=${powerthresh}"]   })
           + ($deepestcache =~ Undef ? { true => [], false => ["--deepestcache=${deepestcache}"] })
           + ($policyscript =~ Undef ? { true => [], false => ["--policyscript=${policyscript}"] })

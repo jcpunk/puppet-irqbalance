@@ -55,7 +55,7 @@ describe 'irqbalance' do
         .with_mode('0644')
         .that_notifies('Service[irqbalance.service]')
         .with_content(%r{^#IRQBALANCE_BANNED_CPULIST=""})
-        .with_content(%r{^IRQBALANCE_ARGS="--hintpolicy=ignore -j"})
+        .with_content(%r{^IRQBALANCE_ARGS="-j"})
     }
   end
 
@@ -70,7 +70,6 @@ describe 'irqbalance' do
     let(:params) do
       {
         'oneshot'      => true,
-        'hintpolicy'   => 'exact',
         'powerthresh'  => 389,
         'ban_irq'      => [3, 7],
         'ban_mod'      => ['a', 'b'],
@@ -86,7 +85,7 @@ describe 'irqbalance' do
     it {
       is_expected.to contain_file('/etc/sysconfig/irqbalance')
         .with_content(%r{^IRQBALANCE_BANNED_CPULIST="0,0-11"})
-        .with_content(%r{^IRQBALANCE_ARGS="--hintpolicy=exact --oneshot --powerthresh=389 --deepestcache=3 --policyscript=/usr/bin/foo.sh --migrateval=4 --interval=5 --banirq=3 --banirq=7 --banmod=a --banmod=b --beep --boop"}) # rubocop:disable Layout/LineLength
+        .with_content(%r{^IRQBALANCE_ARGS="--oneshot --powerthresh=389 --deepestcache=3 --policyscript=/usr/bin/foo.sh --migrateval=4 --interval=5 --banirq=3 --banirq=7 --banmod=a --banmod=b --beep --boop"}) # rubocop:disable Layout/LineLength
     } # rubocop:enable Layout/LineLength
   end
 
@@ -125,7 +124,7 @@ describe 'irqbalance' do
         .with_group('root')
         .with_mode('0644')
         .that_notifies('Service[irqbalance.service]')
-        .with_content(%r{IRQBALANCE_ARGS="--hintpolicy=ignore --oneshot -j"})
+        .with_content(%r{IRQBALANCE_ARGS="--oneshot -j"})
     }
   end
 

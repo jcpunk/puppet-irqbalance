@@ -54,7 +54,6 @@ The following parameters are available in the `irqbalance` class:
 * [`irqbalance_binary`](#-irqbalance--irqbalance_binary)
 * [`irqbalance_env_file`](#-irqbalance--irqbalance_env_file)
 * [`oneshot`](#-irqbalance--oneshot)
-* [`hintpolicy`](#-irqbalance--hintpolicy)
 * [`powerthresh`](#-irqbalance--powerthresh)
 * [`ban_irq`](#-irqbalance--ban_irq)
 * [`ban_mod`](#-irqbalance--ban_mod)
@@ -143,17 +142,6 @@ Useful for systems where interrupt affinity should be set once at boot rather
 than continuously adjusted. Equivalent to --oneshot.
 
 Default value: `false`
-
-##### <a name="-irqbalance--hintpolicy"></a>`hintpolicy`
-
-Data type: `Enum['exact','subset','ignore']`
-
-Controls how irqbalance interprets IRQ locality hints from device drivers.
-'exact' places the IRQ on the exact CPU indicated by the hint, 'subset' places
-it on a CPU within the hinted set, and 'ignore' disregards hints entirely.
-Equivalent to --hintpolicy.
-
-Default value: `'ignore'`
 
 ##### <a name="-irqbalance--powerthresh"></a>`powerthresh`
 
