@@ -100,7 +100,7 @@ class irqbalance (
   Boolean $oneshot = false,
   Array[Integer] $ban_irq = [],
   Array[String] $ban_mod = [],
-  Array[Pattern[/^\d+(-\d+)?$/]] $ban_cpu_list   = [],
+  Array[Variant[Integer, Pattern[/^\d+(-\d+)?$/]]] $ban_cpu_list   = [],
   Array[String] $extra_args = ['-j'],
   Optional[Integer] $powerthresh = undef,
   Optional[Integer[0,3]] $deepestcache = undef,

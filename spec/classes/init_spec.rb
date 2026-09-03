@@ -73,7 +73,7 @@ describe 'irqbalance' do
         'powerthresh'  => 389,
         'ban_irq'      => [3, 7],
         'ban_mod'      => ['a', 'b'],
-        'ban_cpu_list' => ['0', '0-11'],
+        'ban_cpu_list' => ['0', '0-11', 4],
         'deepestcache' => 3,
         'policyscript' => '/usr/bin/foo.sh',
         'migrateval'   => 4,
@@ -84,7 +84,7 @@ describe 'irqbalance' do
 
     it {
       is_expected.to contain_file('/etc/sysconfig/irqbalance')
-        .with_content(%r{^IRQBALANCE_BANNED_CPULIST="0,0-11"})
+        .with_content(%r{^IRQBALANCE_BANNED_CPULIST="0,0-11,4"})
         .with_content(%r{^IRQBALANCE_ARGS="--oneshot --powerthresh=389 --deepestcache=3 --policyscript=/usr/bin/foo.sh --migrateval=4 --interval=5 --banirq=3 --banirq=7 --banmod=a --banmod=b --beep --boop"}) # rubocop:disable Layout/LineLength
     } # rubocop:enable Layout/LineLength
   end

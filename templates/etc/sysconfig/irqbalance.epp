@@ -1,14 +1,14 @@
 <%- |
-  Boolean                                  $oneshot      = false,
-  Optional[Integer]                        $powerthresh  = undef,
-  Array[Integer]                           $ban_irq      = [],
-  Array[String]                            $ban_mod      = [],
-  Array[Pattern[/^\d+(-\d+)?$/]]           $ban_cpu_list = [],
-  Optional[Integer[0,3]]                   $deepestcache = undef,
-  Optional[Stdlib::Absolutepath]           $policyscript = undef,
-  Optional[Integer[1]]                     $migrateval   = undef,
-  Optional[Integer[1]]                     $interval     = undef,
-  Array[String]                            $extra_args   = [],
+  Boolean                                           $oneshot      = false,
+  Optional[Integer]                                 $powerthresh  = undef,
+  Array[Integer]                                    $ban_irq      = [],
+  Array[String]                                     $ban_mod      = [],
+  Array[Variant[Integer, Pattern[/^\d+(-\d+)?$/]]]  $ban_cpu_list = [],
+  Optional[Integer[0,3]]                            $deepestcache = undef,
+  Optional[Stdlib::Absolutepath]                    $policyscript = undef,
+  Optional[Integer[1]]                              $migrateval   = undef,
+  Optional[Integer[1]]                              $interval     = undef,
+  Array[String]                                     $extra_args   = [],
 | -%>
 <%- $args = ($oneshot      ?          { true => ['--oneshot'], false => [] })
           + ($powerthresh  =~ Undef ? { true => [], false => ["--powerthresh=${powerthresh}"]   })

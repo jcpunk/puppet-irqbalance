@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.0.2
+
+**Bug Fixes**
+
+- Correctly support integers for banning CPUs
+
 ## Release 2.0.1
 
 **Bug Fixes**
