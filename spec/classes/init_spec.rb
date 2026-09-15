@@ -3,6 +3,7 @@ require 'spec_helper'
 describe 'irqbalance' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
+
       let(:facts) { os_facts.merge({ 'processors' => { 'count' => 2 } }) }
 
       it { is_expected.to compile }
@@ -82,6 +83,7 @@ describe 'irqbalance' do
       }
     end
 
+    it { is_expected.to compile.with_all_deps }
     it {
       is_expected.to contain_file('/etc/sysconfig/irqbalance')
         .with_content(%r{^IRQBALANCE_BANNED_CPULIST="0,0-11,4"})
@@ -103,6 +105,7 @@ describe 'irqbalance' do
       }
     end
 
+    it { is_expected.to compile.with_all_deps }
     it {
       is_expected.to contain_systemd__manage_dropin('puppet.conf')
         .with_ensure('present')
@@ -150,4 +153,38 @@ describe 'irqbalance' do
         .with_enable(false)
     }
   end
+
+  context 'fail negative ban_cpus (int)' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+        'processors' => { 'count' => 2 },
+      }
+    end
+
+    let(:params) do
+      {
+        'ban_cpu_list' => [-1],
+      }
+    end
+
+    it { is_expected.not_to compile }
+  end
+
+  context 'fail negative ban_cpus (string)' do
+    let(:facts) do
+      {
+        'path' => '/bin:/usr/bin',
+        'processors' => { 'count' => 2 },
+      }
+    end
+      
+    let(:params) do
+      { 
+        'ban_cpu_list' => ['-1'],
+      }
+    end
+    
+    it { is_expected.not_to compile }
+  end 
 end

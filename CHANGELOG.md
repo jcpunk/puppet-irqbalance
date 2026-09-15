@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Release 2.0.3
+
+**Bug Fixes**
+
+- Prevent negative integers (typos) for banning CPUs
+
 ## Release 2.0.2
 
 **Bug Fixes**
